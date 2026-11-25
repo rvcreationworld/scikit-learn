@@ -1456,6 +1456,21 @@ def test_chi_square_kernel():
         chi2_kernel([[0, 1]], [[0.2, 0.2, 0.6]])
 
 
+@pytest.mark.parametrize("dtype", [np.float32, np.float64])
+def test_chi_square_kernel_readonly(dtype):
+    """Check that chi2 kernels accept read-only input arrays."""
+    rng = np.random.RandomState(0)
+    X = rng.random_sample((5, 4)).astype(dtype)
+    Y = rng.random_sample((6, 4)).astype(dtype)
+    X_ro = X.copy()
+    Y_ro = Y.copy()
+    X_ro.flags.writeable = False
+    Y_ro.flags.writeable = False
+
+    assert_allclose(additive_chi2_kernel(X_ro, Y_ro), additive_chi2_kernel(X, Y))
+    assert_allclose(chi2_kernel(X_ro, Y_ro), chi2_kernel(X, Y))
+
+
 @pytest.mark.parametrize(
     "kernel",
     (
